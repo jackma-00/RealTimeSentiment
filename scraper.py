@@ -5,13 +5,16 @@ import pandas as pd
 import time
 
 
-def extract_tweets(tweets):
+def extract_tweets(containers):
     # Lists to store users and tweets
     users = []
     tweets = []
-
+    print(f"Extracting {len(containers)} tweets")
     # Loop through each container and extract the tweet text and user
-    for container in tweets:
+    for container in containers:
+        print("=====================================")
+        print(container)
+        print("=====================================")
         try:
             # Extract the username
             user = container.find_element(
@@ -22,14 +25,14 @@ def extract_tweets(tweets):
                 By.XPATH, './/div[@data-testid="tweetText"]').text
 
             # Add to the lists
+            print(f"User: {user}")
+            print(f"Tweet: {tweet}")
+            users.append(user)
+            tweets.append(tweet)
         except Exception as e:
             print(f"Error extracting data: {e}")
             continue
         # if no errors, print the user and tweet
-        print(f"User: {user}")
-        print(f"Tweet: {tweet}")
-        users.append(user)
-        tweets.append(tweet)
     return users, tweets
 
 
