@@ -4,6 +4,8 @@ for installing the required packages, run the following command:
 ```bash
 pip install -r requirements.txt
 ```
+
+It is also required to have the geckodriver in the same folder. You can download it from [here](https://github.com/mozilla/geckodriver/releases)
 for running the script, run the following command:
 ```bash
 python scraper.py
