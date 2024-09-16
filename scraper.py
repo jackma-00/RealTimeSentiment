@@ -21,8 +21,12 @@ def extract_tweets(containers):
                 By.XPATH, './/div[@data-testid="User-Name"]//span').text
 
             # Extract the tweet text
-            tweet = container.find_element(
-                By.XPATH, './/div[@data-testid="tweetText"]').text
+            tweet_texts = container.find_element(
+                By.XPATH, './/div[@data-testid="tweetText"]')
+
+            tweet = ""
+            for text in tweet_texts.find_elements(By.XPATH, './/span'):
+                tweet += text.text+" "
 
             # Add to the lists
             print(f"User: {user}")
