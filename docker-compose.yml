@@ -1,4 +1,10 @@
 services:
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    restart: always
+    ports:
+      - "9092:9092"
   mongo:
     image: mongo:latest
     container_name: mongodb
