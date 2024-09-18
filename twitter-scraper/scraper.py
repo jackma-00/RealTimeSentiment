@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
-import pandas as pd
 import time
 
 
@@ -12,9 +11,6 @@ def extract_tweets(containers):
     print(f"Extracting {len(containers)} tweets")
     # Loop through each container and extract the tweet text and user
     for container in containers:
-        print("=====================================")
-        print(container)
-        print("=====================================")
         try:
             # Extract the username
             user = container.find_element(
@@ -28,11 +24,15 @@ def extract_tweets(containers):
             for text in tweet_texts.find_elements(By.XPATH, './/span'):
                 tweet += text.text+" "
 
-            # Add to the lists
+            # remvoe new lines and tabs from the tweet
+            tweet = tweet.replace("\n", " ").replace("\t", " ")
+            print("=====================================")
             print(f"User: {user}")
             print(f"Tweet: {tweet}")
-            users.append(user)
-            tweets.append(tweet)
+            print("=====================================")
+            # open file in append mode
+            with open("tweets.csv", "a") as file:
+                file.write(f"{user}\t{tweet}\n")
         except Exception as e:
             print(f"Error extracting data: {e}")
             continue
@@ -84,15 +84,6 @@ for i in range(scroll_count):
     # Add to the lists
     users.extend(new_users)
     tweets.extend(new_tweets)
-
-# open the file in write mode
-with open("tweets.csv", "w") as file:
-    # write the header
-    file.write("User,Tweet\n")
-    # write the data
-    for i, tweet in enumerate(tweets):
-        print(f"Tweet: {tweet}  \nUser: {users[i]}\n =====================\n")
-        file.write(f"{users[i]},{tweet}\n")
 
 # Close the browser
 driver.quit()
