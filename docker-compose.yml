@@ -1,0 +1,15 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: mydb 
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo/init-mongo-db-with-collections.js:/docker-entrypoint-initdb.d/init-mongo-db-with-collections.js:ro 
+
+volumes:
+  mongo-data:
