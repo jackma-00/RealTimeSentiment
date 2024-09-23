@@ -4,11 +4,11 @@ For installing the required packages, run the following command:
 ```bash
 pip install -r requirements.txt
 ```
-For running the kafka server, run the following command in the base directory:
+Once the kafka server is up and running, to creating a topic, run the following command:
 ```bash
-docker-compose up
+python kafka-create-topic.py
 ```
-For creating a topic and storing it in the kafka brokers, run the following command:
+For storing tweets in the kafka brokers, run the following command:
 ```bash
 python kafka-producer.py
 ```

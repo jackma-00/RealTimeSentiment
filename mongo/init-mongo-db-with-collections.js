@@ -1,1 +1,2 @@
-db.createCollection("usa20224")
+db.createCollection("usa2024");
+db.createCollection("tweets");

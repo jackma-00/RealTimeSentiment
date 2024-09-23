@@ -81,7 +81,3 @@ services:
 
 volumes:
   mongo-data:
-  zookeeper_data:
-    driver: local
-  kafka_data:
-    driver: local
