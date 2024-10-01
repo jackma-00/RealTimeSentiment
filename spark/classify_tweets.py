@@ -73,7 +73,7 @@ df = df.selectExpr("CAST(value AS STRING)") \
     .select("data.username", "data.tweet")
 
 query = df.writeStream \
-    .foreachBatch(classify_tweets) \
+    .foreachBatch(classify_trump) \
     .start()
 
 query.awaitTermination()
