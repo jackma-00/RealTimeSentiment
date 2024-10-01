@@ -17,11 +17,12 @@ SUPPORT_COUNT = 0
 OPPOSE_COUNT = 0
 
 client = MongoClient("mongodb://localhost:27017/")
-db = client["mydb"]  # use or create a database named mydb
-collection = db["usa2024"]  # use or create a collection named usa2024
+db = client["usa2024"]  # use or create a database named usa2024
+trump_db = db["trump"]  # use or create a collection named trump
+harris_db = db["harris"]  # use or create a collection named harris
 
 
-def classify_tweets(batch_df: DataFrame, batch_id: int):
+def classify_trump(batch_df: DataFrame, batch_id: int):
     # use map in the current stream batch
     print("Classifying tweets")
     print(batch_df.show(5))
@@ -40,7 +41,7 @@ def classify_tweets(batch_df: DataFrame, batch_id: int):
             OPPOSE_COUNT += value
 
     # save the counts to MongoDB
-    collection.insert_one({
+    trump_db.insert_one({
         "timestamp": datetime.now(),
         SUPPORT_KEY: SUPPORT_COUNT,
         OPPOSE_KEY: OPPOSE_COUNT
