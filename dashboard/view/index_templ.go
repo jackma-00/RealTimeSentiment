@@ -8,9 +8,7 @@ package view
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/arejula27/data-intensive-demo/dashboard/model"
-
-func IndexPage() templ.Component {
+func IndexPage(timestamps []string, trumpPopularity []int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -35,7 +33,7 @@ func IndexPage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Chart([]model.TimeSeries{}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Chart(timestamps, trumpPopularity).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -47,7 +45,7 @@ func IndexPage() templ.Component {
 	})
 }
 
-func Chart(values []model.TimeSeries) templ.Component {
+func Chart(timestempas []string, trumpPopularity []int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -68,7 +66,33 @@ func Chart(values []model.TimeSeries) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><canvas id=\"myChart\"></canvas></div><script type=\"text/javascript\">\n\tvar ctx = document.getElementById('myChart').getContext('2d');\n\tvar myChart = new Chart(ctx, {\n\t\ttype: 'line',\n\t\tdata: {\n\t\t\tlabels: [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\"],\n\t\t\tdatasets: [{\n\t\t\t\tdata: [86, 30, 60, 70],\n\t\t\t\tlabel: \"Trump\",\n\t\t\t\tborderColor: \"rgb(227,17,17)\",\n\t\t\t\tbackgroundColor: \"rgb(227,17,17,0.1)\",\n\t\t\t}, {\n\t\t\t\tdata: [14, 70, 40, 30],\n\t\t\t\tlabel: \"Harris\",\n\t\t\t\tborderColor: \"rgb(62,149,205)\",\n\t\t\t\tbackgroundColor: \"rgb(62,149,205,0.1)\",\n\t\t\t}\n\t\t\t]\n\t\t},\n\t\toptions: {\n\t\t\tscales: {\n\t\t\t\tyAxes: [{\n\t\t\t\t\tstacked: true\n\t\t\t\t}]\n\t\t\t}\n\t\t},\n\t});\n</script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><canvas id=\"myChart\"></canvas></div><script type=\"text/javascript\" timestamps=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(templ.JSONString(trumpPopularity))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/index.templ`, Line: 24, Col: 78}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" trumpPopularity=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(templ.JSONString(trumpPopularity))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/index.templ`, Line: 24, Col: 132}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">\n\t\tvar ctx = document.getElementById('myChart').getContext('2d');\n\t\tvar timestamps = JSON.parse(document.currentScript.getAttribute('timestamps'));\n\t\tvar trumpPopularity = JSON.parse(document.currentScript.getAttribute('trumpPopularity'));\n\t\t//iterrate and print trumpPopularity\n\t\tfor (var i = 0; i < trumpPopularity.length; i++) {\n\t\t\tconsole.log(trumpPopularity[i]);\n\t\t}\n\t\tharrisPopularity = trumpPopularity.map(x => 100 - x);\n\t\tconsole.log(harrisPopularity);\n\t\tvar myChart = new Chart(ctx, {\n\t\t\ttype: 'line',\n\t\t\tdata: {\n\t\t\t\tlabels: timestamps,\n\t\t\t\tdatasets: [{\n\t\t\t\t\tdata: trumpPopularity,\n\t\t\t\t\tlabel: \"Trump\",\n\t\t\t\t\tborderColor: \"rgb(227,17,17)\",\n\t\t\t\t\tbackgroundColor: \"rgb(227,17,17,0.1)\",\n\t\t\t\t}, {\n\t\t\t\t\tdata: harrisPopularity,\n\t\t\t\t\tlabel: \"Harris\",\n\t\t\t\t\tborderColor: \"rgb(62,149,205)\",\n\t\t\t\t\tbackgroundColor: \"rgb(62,149,205,0.1)\",\n\t\t\t\t}\n\t\t\t\t]\n\t\t\t},\n\t\t\toptions: {\n\t\t\t\tanimation: {\n\t\t\t\t\tduration: 0\n\t\t\t\t},\n\t\t\t\tscales: {\n\t\t\t\t\tyAxes: [{\n\t\t\t\t\t\tstacked: true\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t},\n\t\t});\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
