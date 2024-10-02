@@ -10,10 +10,18 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"
 		integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg=="
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<!--Tailwind CSS CDN-->
+	<script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
-	<canvas id="myChart"></canvas>
+	<h1 class="text-4xl font-bold text-center text-white bg-black p-4 rounded-lg m-8">USA 2024 Election Prediction
+	</h1>
+	<div class="flex justify-center">
+		<div class="w-5/6">
+			<canvas id="myChart"></canvas>
+		</div>
+	</div>
 	<script type="text/javascript">
 		var ctx = document.getElementById('myChart').getContext('2d');
 		var myChart = new Chart(ctx, {
@@ -41,10 +49,6 @@
 			options: {
 				responsive: true,
 				plugins: {
-					title: {
-						display: true,
-						text: (ctx) => 'Chart.js Line Chart - stacked=' + ctx.chart.options.scales.y.stacked
-					},
 					tooltip: {
 						mode: 'index'
 					},
