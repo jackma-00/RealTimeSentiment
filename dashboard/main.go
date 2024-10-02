@@ -44,7 +44,7 @@ func getData() string {
 		TrumpPopularity  int    `json:"trumpPopularity"`
 		HarrisPopularity int    `json:"harrisPopularity"`
 	}
-	currentTime := time.Now().Format("2006-01-02 15:04:05")
+	currentTime := time.Now().Format("15:04:05")
 	res, err := json.Marshal(result{Timestamps: currentTime, TrumpPopularity: trumpSupport, HarrisPopularity: harrisSupport})
 	if err != nil {
 		return "{}"
