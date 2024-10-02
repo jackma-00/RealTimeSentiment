@@ -1,0 +1,63 @@
+package view
+
+templ IndexPage(timestamps []string, trumpPopularity []int) {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<!-- Required meta tags -->
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Chart.js Filled Line Chart</title>
+			<!--Chart.js JS CDN-->
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+		</head>
+		<body>
+			@Chart(timestamps, trumpPopularity)
+		</body>
+	</html>
+}
+
+templ Chart(timestempas []string, trumpPopularity []int) {
+	<div>
+		<canvas id="myChart"></canvas>
+	</div>
+	<script type="text/javascript" timestamps={ templ.JSONString(trumpPopularity) } trumpPopularity={ templ.JSONString(trumpPopularity) }>
+		var ctx = document.getElementById('myChart').getContext('2d');
+		var timestamps = JSON.parse(document.currentScript.getAttribute('timestamps'));
+		var trumpPopularity = JSON.parse(document.currentScript.getAttribute('trumpPopularity'));
+		//iterrate and print trumpPopularity
+		for (var i = 0; i < trumpPopularity.length; i++) {
+			console.log(trumpPopularity[i]);
+		}
+		harrisPopularity = trumpPopularity.map(x => 100 - x);
+		console.log(harrisPopularity);
+		var myChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: timestamps,
+				datasets: [{
+					data: trumpPopularity,
+					label: "Trump",
+					borderColor: "rgb(227,17,17)",
+					backgroundColor: "rgb(227,17,17,0.1)",
+				}, {
+					data: harrisPopularity,
+					label: "Harris",
+					borderColor: "rgb(62,149,205)",
+					backgroundColor: "rgb(62,149,205,0.1)",
+				}
+				]
+			},
+			options: {
+				animation: {
+					duration: 0
+				},
+				scales: {
+					yAxes: [{
+						stacked: true
+					}]
+				}
+			},
+		});
+	</script>
+}
