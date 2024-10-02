@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/arejula27/data-intensive-demo/dashboard/view"
@@ -43,8 +42,8 @@ func getData() ([]string, []int) {
 	//iterate over the results create a slice with the timestamps and a slice with probablity of trump winning
 	var timestamps []string
 	var trump []int
-	for i, result := range trumpResults {
-		timestamps = append(timestamps, fmt.Sprintf("%d", i))
+	for _, result := range trumpResults {
+		timestamps = append(timestamps, result.Timestamp.Format("2006-01-02 15:04:05"))
 		if result.Support+result.Oppose != 0 {
 			trump = append(trump, result.Support/(result.Support+result.Oppose)*100)
 		}
@@ -55,6 +54,12 @@ func getData() ([]string, []int) {
 func IndexPageHandler(c echo.Context) error {
 	timestamps, trump := getData()
 	component := view.IndexPage(timestamps, trump)
+	return component.Render(c.Request().Context(), c.Response())
+}
+
+func ChartHandler(c echo.Context) error {
+	timestamps, trump := getData()
+	component := view.ScriptData(timestamps, trump)
 	return component.Render(c.Request().Context(), c.Response())
 }
 
@@ -77,6 +82,7 @@ func main() {
 
 	e := echo.New()
 	e.GET("/", IndexPageHandler)
+	e.GET("/chart", ChartHandler)
 	e.Logger.Fatal(e.Start(":1323"))
 
 }

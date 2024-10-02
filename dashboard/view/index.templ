@@ -10,6 +10,8 @@ templ IndexPage(timestamps []string, trumpPopularity []int) {
 			<title>Chart.js Filled Line Chart</title>
 			<!--Chart.js JS CDN-->
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+			<!--htmx JS CDN-->
+			<script src="https://unpkg.com/htmx.org@2.0.2"></script>
 		</head>
 		<body>
 			@Chart(timestamps, trumpPopularity)
@@ -17,47 +19,73 @@ templ IndexPage(timestamps []string, trumpPopularity []int) {
 	</html>
 }
 
-templ Chart(timestempas []string, trumpPopularity []int) {
-	<div>
-		<canvas id="myChart"></canvas>
+templ ScriptData(timestamps []string, trumpPopularity []int) {
+	<div hx-get="/chart" hx-trigger="every 1000ms" hx-swap="outerHTML">
+		<script type="text/javascript" id="dataScript" timestamps={ templ.JSONString(timestamps) } trumpPopularity={ templ.JSONString(trumpPopularity) }>
+		</script>
 	</div>
-	<script type="text/javascript" timestamps={ templ.JSONString(trumpPopularity) } trumpPopularity={ templ.JSONString(trumpPopularity) }>
-		var ctx = document.getElementById('myChart').getContext('2d');
-		var timestamps = JSON.parse(document.currentScript.getAttribute('timestamps'));
-		var trumpPopularity = JSON.parse(document.currentScript.getAttribute('trumpPopularity'));
-		//iterrate and print trumpPopularity
-		for (var i = 0; i < trumpPopularity.length; i++) {
-			console.log(trumpPopularity[i]);
-		}
-		harrisPopularity = trumpPopularity.map(x => 100 - x);
-		console.log(harrisPopularity);
-		var myChart = new Chart(ctx, {
-			type: 'line',
-			data: {
-				labels: timestamps,
-				datasets: [{
-					data: trumpPopularity,
-					label: "Trump",
-					borderColor: "rgb(227,17,17)",
-					backgroundColor: "rgb(227,17,17,0.1)",
-				}, {
-					data: harrisPopularity,
-					label: "Harris",
-					borderColor: "rgb(62,149,205)",
-					backgroundColor: "rgb(62,149,205,0.1)",
-				}
-				]
+}
+
+templ Chart(timestamps []string, trumpPopularity []int) {
+	<canvas id="myChart"></canvas>
+	@ScriptData(timestamps, trumpPopularity)
+	<script type="text/javascript">
+	//iterrate and print trumpPopularity
+
+	var ctx = document.getElementById('myChart').getContext('2d');
+	var myChart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: [],
+			datasets: [{
+				data: [],
+				label: "Trump",
+				borderColor: "rgb(227,17,17)",
+				backgroundColor: "rgb(227,17,17,0.1)",
+			}, {
+				data: [],
+				label: "Harris",
+				borderColor: "rgb(62,149,205)",
+				backgroundColor: "rgb(62,149,205,0.1)",
+			}
+			]
+		},
+		options: {
+			animation: {
+				duration: 0
 			},
-			options: {
-				animation: {
-					duration: 0
-				},
-				scales: {
-					yAxes: [{
-						stacked: true
-					}]
-				}
-			},
-		});
-	</script>
+			scales: {
+				yAxes: [{
+					stacked: true
+				}]
+			}
+		},
+	});
+
+
+	function updateChart() {
+		var scriptTag = document.getElementById('dataScript');
+
+		// Parsing attributes from the script tag
+		var timestamps = JSON.parse(scriptTag.getAttribute('timestamps'));
+		var trumpPopularity = JSON.parse(scriptTag.getAttribute('trumpPopularity'));
+		var harrisPopularity = trumpPopularity.map(x => 100 - x);
+
+		//Update the chart object
+		myChart.data.labels = timestamps;
+		myChart.data.datasets[0].data = trumpPopularity;
+		myChart.data.datasets[1].data = harrisPopularity;
+		console.log(myChart.data.datasets[0].data.length);
+
+		//Update the chart
+		myChart.update();
+
+	}
+	updateChart()
+	setInterval(function () {
+		updateChart()
+		console.log("update")
+	}, 1000);
+
+</script>
 }
