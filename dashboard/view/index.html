@@ -8,8 +8,6 @@
 	<title>USA 2024 election prediction</title>
 	<!--Chart.js JS CDN-->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
-	<!--htmx JS CDN-->
-	<script src="https://unpkg.com/htmx.org@2.0.2"></script>
 </head>
 
 <body>
@@ -55,7 +53,6 @@
 				.then(response => response.json())
 				.then(data => {
 					data = JSON.parse(data)
-					console.log(data)
 					// Update Chart.js data
 					myChart.data.labels = data.timestamps;
 					myChart.data.datasets[0].data = data.trumpPopularity;
