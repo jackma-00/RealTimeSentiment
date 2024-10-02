@@ -31,7 +31,7 @@ func IndexPage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><!-- Required meta tags --><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Chart.js Filled Line Chart</title><!--Chart.js JS CDN--><script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js\"></script></head><body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><!-- Required meta tags --><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Chart.js Filled Line Chart</title><!--Chart.js JS CDN--><script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js\"></script></head><body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -68,7 +68,7 @@ func Chart(values []model.TimeSeries) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><canvas id=\"myChart\"></canvas></div><script type=\"text/javascript\">\n\tvar ctx = document.getElementById('myChart').getContext('2d');\n\tvar myChart = new Chart(ctx, {\n\t\ttype: 'line',\n\t\tdata: {\n\t\t\tlabels: [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"],\n\t\t\tdatasets: [{\n\t\t\t\tdata: [86, 114, 106, 106, 107, 111, 133],\n\t\t\t\tlabel: \"Trump\",\n\t\t\t\tborderColor: \"rgb(227,17,17)\",\n\t\t\t\tbackgroundColor: \"rgb(227,17,17,0.1)\",\n\t\t\t\tfill: \"start\",\n\t\t\t}, {\n\t\t\t\tdata: [86, 114, 106, 106, 107, 111, 133],\n\t\t\t\tlabel: \"Harris\",\n\t\t\t\tborderColor: \"rgb(62,149,205)\",\n\t\t\t\tbackgroundColor: \"rgb(62,149,205,0.1)\",\n\t\t\t\tfill: \"end\",\n\t\t\t}\n\t\t\t]\n\t\t},\n\t});\n</script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><canvas id=\"myChart\"></canvas></div><script type=\"text/javascript\">\n\tvar ctx = document.getElementById('myChart').getContext('2d');\n\tvar myChart = new Chart(ctx, {\n\t\ttype: 'line',\n\t\tdata: {\n\t\t\tlabels: [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\"],\n\t\t\tdatasets: [{\n\t\t\t\tdata: [86, 30, 60, 70],\n\t\t\t\tlabel: \"Trump\",\n\t\t\t\tborderColor: \"rgb(227,17,17)\",\n\t\t\t\tbackgroundColor: \"rgb(227,17,17,0.1)\",\n\t\t\t}, {\n\t\t\t\tdata: [14, 70, 40, 30],\n\t\t\t\tlabel: \"Harris\",\n\t\t\t\tborderColor: \"rgb(62,149,205)\",\n\t\t\t\tbackgroundColor: \"rgb(62,149,205,0.1)\",\n\t\t\t}\n\t\t\t]\n\t\t},\n\t\toptions: {\n\t\t\tscales: {\n\t\t\t\tyAxes: [{\n\t\t\t\t\tstacked: true\n\t\t\t\t}]\n\t\t\t}\n\t\t},\n\t});\n</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

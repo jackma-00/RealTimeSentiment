@@ -11,7 +11,7 @@ templ IndexPage() {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>Chart.js Filled Line Chart</title>
 			<!--Chart.js JS CDN-->
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
 		</head>
 		<body>
 			@Chart([]model.TimeSeries{})
@@ -28,21 +28,26 @@ templ Chart(values []model.TimeSeries) {
 	var myChart = new Chart(ctx, {
 		type: 'line',
 		data: {
-			labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+			labels: ["Sunday", "Monday", "Tuesday", "Wednesday"],
 			datasets: [{
-				data: [86, 114, 106, 106, 107, 111, 133],
+				data: [86, 30, 60, 70],
 				label: "Trump",
 				borderColor: "rgb(227,17,17)",
 				backgroundColor: "rgb(227,17,17,0.1)",
-				fill: "start",
 			}, {
-				data: [86, 114, 106, 106, 107, 111, 133],
+				data: [14, 70, 40, 30],
 				label: "Harris",
 				borderColor: "rgb(62,149,205)",
 				backgroundColor: "rgb(62,149,205,0.1)",
-				fill: "end",
 			}
 			]
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					stacked: true
+				}]
+			}
 		},
 	});
 </script>
