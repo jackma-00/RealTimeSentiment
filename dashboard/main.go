@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
-	"github.com/arejula27/data-intensive-demo/dashboard/view"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,7 +20,7 @@ type candidateData struct {
 	Oppose    int       `bson:"oppose"`
 }
 
-func getData() ([]string, []int) {
+func getData() string {
 	cursor, err := trump_db.Find(context.TODO(), bson.D{})
 	if err != nil {
 		panic(err)
@@ -42,25 +42,31 @@ func getData() ([]string, []int) {
 	//iterate over the results create a slice with the timestamps and a slice with probablity of trump winning
 	var timestamps []string
 	var trump []int
+	var harris []int
 	for _, result := range trumpResults {
 		timestamps = append(timestamps, result.Timestamp.Format("2006-01-02 15:04:05"))
 		if result.Support+result.Oppose != 0 {
-			trump = append(trump, result.Support/(result.Support+result.Oppose)*100)
+			currentTrumpSupport := result.Support / (result.Support + result.Oppose) * 100
+			trump = append(trump, currentTrumpSupport)
+			harris = append(harris, 100-currentTrumpSupport)
 		}
 	}
-	return timestamps, trump
-}
+	type result struct {
+		Timestamps       []string `json:"timestamps"`
+		TrumpPopularity  []int    `json:"trumpPopularity"`
+		HarrisPopularity []int    `json:"harrisPopularity"`
+	}
+	res, err := json.Marshal(result{Timestamps: timestamps, TrumpPopularity: trump, HarrisPopularity: harris})
+	if err != nil {
+		return ""
+	}
+	return string(res)
 
-func IndexPageHandler(c echo.Context) error {
-	timestamps, trump := getData()
-	component := view.IndexPage(timestamps, trump)
-	return component.Render(c.Request().Context(), c.Response())
 }
 
 func ChartHandler(c echo.Context) error {
-	timestamps, trump := getData()
-	component := view.ScriptData(timestamps, trump)
-	return component.Render(c.Request().Context(), c.Response())
+	jsonData := getData()
+	return c.JSON(200, jsonData)
 }
 
 func main() {
@@ -81,8 +87,8 @@ func main() {
 	harris_db = client.Database("usa2024").Collection("harris")
 
 	e := echo.New()
-	e.GET("/", IndexPageHandler)
-	e.GET("/chart", ChartHandler)
+	e.Static("/", "view")
+	e.GET("/chart-data", ChartHandler)
 	e.Logger.Fatal(e.Start(":1323"))
 
 }

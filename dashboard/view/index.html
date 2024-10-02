@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>USA 2024 election prediction</title>
+	<!--Chart.js JS CDN-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+	<!--htmx JS CDN-->
+	<script src="https://unpkg.com/htmx.org@2.0.2"></script>
+</head>
+
+<body>
+	<canvas id="myChart"></canvas>
+	<script type="text/javascript">
+		//iterrate and print trumpPopularity
+
+		var ctx = document.getElementById('myChart').getContext('2d');
+		var myChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: [],
+				datasets: [{
+					data: [],
+					label: "Trump",
+					borderColor: "rgb(227,17,17)",
+					backgroundColor: "rgb(227,17,17,0.1)",
+				}, {
+					data: [],
+					label: "Harris",
+					borderColor: "rgb(62,149,205)",
+					backgroundColor: "rgb(62,149,205,0.1)",
+				}
+				]
+			},
+			options: {
+				animation: {
+					duration: 0
+				},
+				scales: {
+					yAxes: [{
+						stacked: true
+					}]
+				}
+			},
+		});
+
+
+		function updateChart() {
+
+			// Parsing attributes from the script tag
+			fetch('/chart-data')
+				.then(response => response.json())
+				.then(data => {
+					data = JSON.parse(data)
+					console.log(data)
+					// Update Chart.js data
+					myChart.data.labels = data.timestamps;
+					myChart.data.datasets[0].data = data.trumpPopularity;
+					myChart.data.datasets[1].data = data.harrisPopularity;
+					myChart.update();
+				});
+
+
+		}
+		updateChart()
+		setInterval(function () {
+			updateChart()
+			console.log("update")
+		}, 1000);
+
+	</script>
+</body>
+
+</html>
