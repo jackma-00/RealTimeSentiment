@@ -1,0 +1,49 @@
+package view
+
+import "github.com/arejula27/data-intensive-demo/dashboard/model"
+
+templ IndexPage() {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<!-- Required meta tags -->
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Chart.js Filled Line Chart</title>
+			<!--Chart.js JS CDN-->
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+		</head>
+		<body>
+			@Chart([]model.TimeSeries{})
+		</body>
+	</html>
+}
+
+templ Chart(values []model.TimeSeries) {
+	<div>
+		<canvas id="myChart"></canvas>
+	</div>
+	<script type="text/javascript">
+	var ctx = document.getElementById('myChart').getContext('2d');
+	var myChart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+			datasets: [{
+				data: [86, 114, 106, 106, 107, 111, 133],
+				label: "Trump",
+				borderColor: "rgb(227,17,17)",
+				backgroundColor: "rgb(227,17,17,0.1)",
+				fill: "start",
+			}, {
+				data: [86, 114, 106, 106, 107, 111, 133],
+				label: "Harris",
+				borderColor: "rgb(62,149,205)",
+				backgroundColor: "rgb(62,149,205,0.1)",
+				fill: "end",
+			}
+			]
+		},
+	});
+</script>
+}
