@@ -1,1 +1,2 @@
-db.createCollection("usa2024");
+db.createCollection("trump");
+db.createCollection("harris");

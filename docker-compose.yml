@@ -74,7 +74,7 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: mydb
+      MONGO_INITDB_DATABASE: usa2024
     volumes:
       - mongo-data:/data/db
       - ./mongo/init-mongo-db-with-collections.js:/docker-entrypoint-initdb.d/init-mongo-db-with-collections.js:ro
