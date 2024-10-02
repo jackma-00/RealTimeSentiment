@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"os"
 	"time"
 
@@ -12,8 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var trump_db *mongo.Collection
-var harris_db *mongo.Collection
+var trumpDb *mongo.Collection
+var harrisDb *mongo.Collection
 
 type candidateData struct {
 	Timestamp time.Time `bson:"timestamp"`
@@ -22,50 +23,36 @@ type candidateData struct {
 }
 
 func getData() string {
-	cursor, err := trump_db.Find(context.TODO(), bson.D{})
+
+	filter := bson.D{}
+	opts := options.FindOne().SetSort(bson.D{{"timestamp", -1}})
+	var currentTrump candidateData
+	err := trumpDb.FindOne(context.TODO(), filter, opts).Decode(&currentTrump)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return "{}"
 	}
 
-	var trumpResults []candidateData
-	if err = cursor.All(context.TODO(), &trumpResults); err != nil {
-		panic(err)
+	if currentTrump.Support+currentTrump.Oppose == 0 {
+		log.Println("No data for Trump")
+		return "{}"
 	}
-	var harrisResults []candidateData
-	cursor, err = harris_db.Find(context.TODO(), bson.D{})
-	if err != nil {
-		panic(err)
-	}
-	if err = cursor.All(context.TODO(), &harrisResults); err != nil {
-		panic(err)
-	}
-
-	//iterate over the results create a slice with the timestamps and a slice with probablity of trump winning
-	var timestamps []string
-	var trump []int
-	var harris []int
-	for _, result := range trumpResults {
-		timestamps = append(timestamps, result.Timestamp.Format("2006-01-02 15:04:05"))
-		if result.Support+result.Oppose != 0 {
-			currentTrumpSupport := result.Support / (result.Support + result.Oppose) * 100
-			trump = append(trump, currentTrumpSupport)
-			harris = append(harris, 100-currentTrumpSupport)
-		}
-	}
+	trumpSupport := currentTrump.Support / (currentTrump.Support + currentTrump.Oppose) * 100
+	harrisSupport := 100 - trumpSupport
 	type result struct {
-		Timestamps       []string `json:"timestamps"`
-		TrumpPopularity  []int    `json:"trumpPopularity"`
-		HarrisPopularity []int    `json:"harrisPopularity"`
+		Timestamps       string `json:"timestamps"`
+		TrumpPopularity  int    `json:"trumpPopularity"`
+		HarrisPopularity int    `json:"harrisPopularity"`
 	}
-	res, err := json.Marshal(result{Timestamps: timestamps, TrumpPopularity: trump, HarrisPopularity: harris})
+	res, err := json.Marshal(result{Timestamps: currentTrump.Timestamp.Format("2006-01-02 15:04:05"), TrumpPopularity: trumpSupport, HarrisPopularity: harrisSupport})
 	if err != nil {
-		return ""
+		return "{}"
 	}
 	return string(res)
 
 }
 
-func ChartHandler(c echo.Context) error {
+func chartHandler(c echo.Context) error {
 	jsonData := getData()
 	return c.JSON(200, jsonData)
 }
@@ -75,6 +62,10 @@ func main() {
 
 	//get mongo uri from env
 	uri := os.Getenv("MONGO_URI")
+	if uri == "" {
+		uri = "mongodb://localhost:27017"
+	}
+
 	client, err := mongo.Connect(context.TODO(), options.Client().
 		ApplyURI(uri))
 	if err != nil {
@@ -85,12 +76,12 @@ func main() {
 			panic(err)
 		}
 	}()
-	trump_db = client.Database("usa2024").Collection("trump")
-	harris_db = client.Database("usa2024").Collection("harris")
+	trumpDb = client.Database("usa2024").Collection("trump")
+	harrisDb = client.Database("usa2024").Collection("harris")
 
 	e := echo.New()
 	e.Static("/", "view")
-	e.GET("/chart-data", ChartHandler)
+	e.GET("/chart-data", chartHandler)
 	e.Logger.Fatal(e.Start(":1323"))
 
 }

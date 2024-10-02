@@ -85,10 +85,14 @@
 				.then(response => response.json())
 				.then(data => {
 					data = JSON.parse(data)
+					//check if the data is not empty
+					if (!data.timestamps) {
+						return
+					}
 					// Update Chart.js data
-					myChart.data.labels = data.timestamps;
-					myChart.data.datasets[0].data = data.trumpPopularity;
-					myChart.data.datasets[1].data = data.harrisPopularity;
+					myChart.data.labels.push(data.timestamps);
+					myChart.data.datasets[0].data.push(data.trumpPopularity);
+					myChart.data.datasets[1].data.push(data.harrisPopularity);
 					myChart.update();
 				});
 
