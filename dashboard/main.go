@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -72,7 +73,8 @@ func ChartHandler(c echo.Context) error {
 func main() {
 	//connect to mongoDB
 
-	uri := "mongodb://localhost:27017"
+	//get mongo uri from env
+	uri := os.Getenv("MONGO_URI")
 	client, err := mongo.Connect(context.TODO(), options.Client().
 		ApplyURI(uri))
 	if err != nil {

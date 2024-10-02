@@ -78,6 +78,15 @@ services:
     volumes:
       - mongo-data:/data/db
       - ./mongo/init-mongo-db-with-collections.js:/docker-entrypoint-initdb.d/init-mongo-db-with-collections.js:ro
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    ports:
+      - "1323:1323"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
 
 volumes:
   mongo-data:
