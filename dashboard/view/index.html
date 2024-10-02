@@ -7,42 +7,70 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>USA 2024 election prediction</title>
 	<!--Chart.js JS CDN-->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"
+		integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
 	<canvas id="myChart"></canvas>
 	<script type="text/javascript">
-		//iterrate and print trumpPopularity
-
 		var ctx = document.getElementById('myChart').getContext('2d');
 		var myChart = new Chart(ctx, {
 			type: 'line',
 			data: {
 				labels: [],
-				datasets: [{
-					data: [],
-					label: "Trump",
-					borderColor: "rgb(227,17,17)",
-					backgroundColor: "rgb(227,17,17,0.1)",
-				}, {
-					data: [],
-					label: "Harris",
-					borderColor: "rgb(62,149,205)",
-					backgroundColor: "rgb(62,149,205,0.1)",
-				}
+				datasets: [
+					{
+						data: [],
+						label: "Trump",
+						borderColor: "rgba(255, 99, 132)",
+						backgroundColor: "rgba(255, 99, 132)",
+						fill: 'start',
+						pointStyle: false
+					}, {
+						data: [],
+						label: "Harris",
+						borderColor: "rgba(54, 162, 235)",
+						backgroundColor: "rgba(54, 162, 235)",
+						fill: 'start',
+						pointStyle: false
+					}
 				]
 			},
 			options: {
-				animation: {
-					duration: 0
+				responsive: true,
+				plugins: {
+					title: {
+						display: true,
+						text: (ctx) => 'Chart.js Line Chart - stacked=' + ctx.chart.options.scales.y.stacked
+					},
+					tooltip: {
+						mode: 'index'
+					},
+				},
+				interaction: {
+					mode: 'nearest',
+					axis: 'x',
+					intersect: false
 				},
 				scales: {
-					yAxes: [{
-						stacked: true
-					}]
+					x: {
+						title: {
+							display: true,
+							text: 'Timestamp'
+						}
+					},
+					y: {
+						max: 100,
+						stacked: true,
+						title: {
+							display: true,
+							text: 'Predicted popularity (%)'
+						}
+					}
 				}
-			},
+			}
 		});
 
 
