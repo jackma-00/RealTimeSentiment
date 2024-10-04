@@ -13,8 +13,11 @@ logger = logging.getLogger(__name__)
 SUPPORT_KEY = "support"
 OPPOSE_KEY = "oppose"
 
-SUPPORT_COUNT = 0
-OPPOSE_COUNT = 0
+T_SUPPORT_COUNT = 0
+T_OPPOSE_COUNT = 0
+
+K_SUPPORT_COUNT = 0
+K_OPPOSE_COUNT = 0
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["usa2024"]  # use or create a database named usa2024
@@ -32,19 +35,19 @@ def classify_trump(batch_df: DataFrame, batch_id: int):
 
         lambda row: (SUPPORT_KEY, 1))  # add model evaluation here
     counts = classified_tweets.reduceByKey(lambda x, y: x + y)
-    global SUPPORT_COUNT, OPPOSE_COUNT
+    global T_SUPPORT_COUNT, T_OPPOSE_COUNT
 
     for key, value in counts.collect():
         if key == SUPPORT_KEY:
-            SUPPORT_COUNT += value
+            T_SUPPORT_COUNT += value
         elif key == OPPOSE_KEY:
-            OPPOSE_COUNT += value
+            T_OPPOSE_COUNT += value
 
     # save the counts to MongoDB
     trump_db.insert_one({
         "timestamp": datetime.now(),
-        SUPPORT_KEY: SUPPORT_COUNT,
-        OPPOSE_KEY: OPPOSE_COUNT
+        SUPPORT_KEY: T_SUPPORT_COUNT,
+        OPPOSE_KEY: T_OPPOSE_COUNT
     })
 
 def classify_kamala(batch_df: DataFrame, batch_id: int):
@@ -57,19 +60,19 @@ def classify_kamala(batch_df: DataFrame, batch_id: int):
 
         lambda row: (SUPPORT_KEY, 1))  # add model evaluation here
     counts = classified_tweets.reduceByKey(lambda x, y: x + y)
-    global SUPPORT_COUNT, OPPOSE_COUNT
+    global K_SUPPORT_COUNT, K_OPPOSE_COUNT
 
     for key, value in counts.collect():
         if key == SUPPORT_KEY:
-            SUPPORT_COUNT += value
+            K_SUPPORT_COUNT += value
         elif key == OPPOSE_KEY:
-            OPPOSE_COUNT += value
+            K_OPPOSE_COUNT += value
 
     # save the counts to MongoDB
     harris_db.insert_one({
         "timestamp": datetime.now(),
-        SUPPORT_KEY: SUPPORT_COUNT,
-        OPPOSE_KEY: OPPOSE_COUNT
+        SUPPORT_KEY: K_SUPPORT_COUNT,
+        OPPOSE_KEY: K_OPPOSE_COUNT
     })
 
 

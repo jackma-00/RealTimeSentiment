@@ -43,8 +43,16 @@ func getData() string {
 		log.Println("No data for Trump and Harris")
 		return "{}"
 	}
-	trumpSupport := currentTrump.Support + currentHarris.Oppose/(totalCount)*100
+	trumpSupport := int((float32(currentTrump.Support + currentHarris.Oppose)/float32(totalCount))*100)
+	log.Println("Current trump: ", currentTrump)
+	log.Println("Current trump support: ", currentTrump.Support)
+	log.Println("Current harris oppose: ", currentHarris.Oppose)
+	log.Println("Harris support: ", currentHarris.Oppose)
 	harrisSupport := 100 - trumpSupport
+	log.Println("Trump support: ", trumpSupport)
+	log.Println("Harris support: ", harrisSupport)
+	log.Println("Total count: ", totalCount)
+
 	type result struct {
 		Timestamps       string `json:"timestamps"`
 		TrumpPopularity  int    `json:"trumpPopularity"`
