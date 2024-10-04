@@ -27,17 +27,23 @@ func getData() string {
 	filter := bson.D{}
 	opts := options.FindOne().SetSort(bson.D{{"timestamp", -1}})
 	var currentTrump candidateData
+	var currentHarris candidateData
 	err := trumpDb.FindOne(context.TODO(), filter, opts).Decode(&currentTrump)
 	if err != nil {
 		log.Println(err)
-		return "{}"
 	}
 
-	if currentTrump.Support+currentTrump.Oppose == 0 {
-		log.Println("No data for Trump")
+	err = harrisDb.FindOne(context.TODO(), filter, opts).Decode(&currentHarris)
+	if err != nil {
+		log.Println(err)
+	}
+
+	totalCount := currentTrump.Support + currentTrump.Oppose + currentHarris.Oppose + currentHarris.Support
+	if totalCount == 0 {
+		log.Println("No data for Trump and Harris")
 		return "{}"
 	}
-	trumpSupport := currentTrump.Support / (currentTrump.Support + currentTrump.Oppose) * 100
+	trumpSupport := currentTrump.Support + currentHarris.Oppose/(totalCount)*100
 	harrisSupport := 100 - trumpSupport
 	type result struct {
 		Timestamps       string `json:"timestamps"`
