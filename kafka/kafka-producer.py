@@ -4,11 +4,9 @@ import json
 import csv
 
 
-def produce_tweets(topic_name, servers="localhost:9092,localhost:9093,localhost:9094"):
+def produce_tweets(topic_name, csv_file, servers="localhost:9092,localhost:9093,localhost:9094"):
     producer = KafkaProducer(bootstrap_servers=servers,
                              value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-    csv_file = '../twitter-scraper/tweets.csv'
-
     with open(csv_file, 'r') as file:
         reader = csv.DictReader(
             file, fieldnames=['username', 'tweet'], delimiter='\t')
@@ -29,4 +27,5 @@ def produce_tweets(topic_name, servers="localhost:9092,localhost:9093,localhost:
     producer.close()
 
 
-produce_tweets('trump_tweets', "localhost:9092,localhost:9093,localhost:9094")
+produce_tweets('trump_tweets', '../twitter-scraper/tweets.csv',"localhost:9092,localhost:9093,localhost:9094")
+produce_tweets('kamala_tweets','../twitter-scraper/khamal_tweets.tsv', "localhost:9092,localhost:9093,localhost:9094")

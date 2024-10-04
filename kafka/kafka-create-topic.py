@@ -16,3 +16,4 @@ def create_kafka_topic(topic_name, num_partitions=1, replication_factor=1, serve
 
 
 create_kafka_topic('trump_tweets',2,3,"localhost:9092,localhost:9093,localhost:9094")
+create_kafka_topic('kamala_tweets',2,3,"localhost:9092,localhost:9093,localhost:9094")

@@ -6,6 +6,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+total_trump = 0
+total_kamala = 0
+
 def filter_and_add_tweets(batch_df, batch_id):
     existing_tweets_df = spark.read \
         .format("mongo") \
@@ -82,3 +85,18 @@ query = df.writeStream \
     .start()
 
 query.awaitTermination()
+
+df2 = spark.readStream.format("kafka") \
+    .option("kafka.bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094") \
+    .option("subscribe", "kamala_tweets") \
+    .load()
+
+df2 = df2.selectExpr("CAST(value AS STRING)") \
+       .select(from_json(col("value"), json_schema).alias("data")) \
+       .select("data.username", "data.tweet")
+
+query2 = df2.writeStream \
+    .foreachBatch(filter_and_add_tweets) \
+    .start()
+
+query2.awaitTermination()
