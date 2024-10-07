@@ -23,7 +23,7 @@ class SentimentAnalyzer:
         """
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL)
         self.model = AutoModelForSequenceClassification.from_pretrained(MODEL)
-        self.labels = ['Negative', 'Neutral', 'Positive']
+        self.labels = ["Negative", "Neutral", "Positive"]
 
     def preprocess_text(self, text: str) -> str:
         """
@@ -50,7 +50,9 @@ class SentimentAnalyzer:
 
         return text
 
-    def analyze_sentiment(self, text: str, preprocess: bool = True) -> tuple[np.ndarray, str]:
+    def analyze_sentiment(
+        self, text: str, preprocess: bool = True
+    ) -> tuple[np.ndarray, str]:
         """
         Analyzes the sentiment of the given text.
         Args:
@@ -62,19 +64,19 @@ class SentimentAnalyzer:
         # Preprocess the input text
         if preprocess:
             text = self.preprocess_text(text)
-        
+
         # Tokenize input and run the model
-        encoded_input = self.tokenizer(text, return_tensors='pt')
+        encoded_input = self.tokenizer(text, return_tensors="pt")
         output = self.model(**encoded_input)
-        
+
         # Convert the model output (logits) into probabilities using softmax
         scores = output[0][0].detach().numpy()
         scores = softmax(scores)
-        
+
         # Find the predominant label
         max_index = np.argmax(scores)
         predominant_label = self.labels[max_index]
-        
+
         return scores, predominant_label
 
     def print_results(self, text: str):
@@ -91,15 +93,14 @@ class SentimentAnalyzer:
         """
         # Run sentiment analysis
         scores, predominant_label = self.analyze_sentiment(text)
-        
+
         # Print the input text
         print(f"Text: {text}")
 
         # Print scores for each label
         for i in range(len(self.labels)):
             print(f"{self.labels[i]}: {scores[i]}")
-        
+
         # Print the predominant label
         print(f"Predominant label: {predominant_label}")
         print()
-

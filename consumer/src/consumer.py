@@ -5,6 +5,7 @@ from pyspark.sql.types import StructType, StringType
 import logging
 from pymongo import MongoClient
 from datetime import datetime
+import os
 
 from sentiment_analysis.politics import SentimentAnalyzer
 
@@ -12,8 +13,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# Default kafka server configuration
-SERVERS = "localhost:9092,localhost:9093,localhost:9094"
+# Define the environment variables
+SERVERS = os.environ.get("SERVERS", "localhost:9092,localhost:9093,localhost:9094")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_DB = os.environ.get("MONGO_DB", "usa2024")
+TRUMP_COLLECTION = os.environ.get("TRUMP_COLLECTION", "trump")
+KAMALA_COLLECTION = os.environ.get("KAMALA_COLLECTION", "kamala")
 
 # Define the topics
 TRUMP_TOPIC = "trump_tweets"
@@ -131,15 +136,17 @@ def handle_stream(server=SERVERS):
 
 if __name__ == "__main__":
     # Connect to MongoDB
-    client = MongoClient("mongodb://localhost:27017/")
-    db = client["usa2024"]  # use or create a database named usa2024
-    trump_db = db["trump"]  # use or create a collection named trump
-    harris_db = db["harris"]  # use or create a collection named harris
+    client = MongoClient(MONGO_URI)
+    db = client[MONGO_DB]  # use or create a database named usa2024
+    trump_db = db[TRUMP_COLLECTION]  # use or create a collection named trump
+    harris_db = db[KAMALA_COLLECTION]  # use or create a collection named harris
 
     # Initialize the Spark session
     spark = (
         SparkSession.builder.appName("KafkaSparkStreamingJSON")
-        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2,")
+        .config(
+            "spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2,"
+        )
         .getOrCreate()
     )
     sc = spark.sparkContext

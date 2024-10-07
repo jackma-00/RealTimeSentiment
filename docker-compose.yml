@@ -78,6 +78,7 @@ services:
     volumes:
       - mongo-data:/data/db
       - ./mongo/init-mongo-db-with-collections.js:/docker-entrypoint-initdb.d/init-mongo-db-with-collections.js:ro
+  
   dashboard:
     build: ./dashboard
     container_name: dashboard
@@ -87,6 +88,23 @@ services:
       - mongo
     environment:
       - MONGO_URI=mongodb://mongodb:27017
+  
+consumer:
+    build: ./consumer
+    container_name: consumer
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - mongo
+    env_file:
+      - .env
+    environment:
+      - SERVERS=${KAFKA_BROKER_URL}
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB_NAME}
+      - TRUMP_COLLECTION=${TRUMP_COLLECTION}
+      - KAMALA_COLLECTION=${KAMALA_COLLECTION}
 
 volumes:
   mongo-data:
