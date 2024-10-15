@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 # Define the environment variables
-SERVERS = os.environ.get("SERVERS", "localhost:9092,localhost:9093,localhost:9094")
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+SERVERS = os.environ.get("SERVERS", "kafka1:19092,kafka2:19093,kafka3:19094")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://mongodb:27017/")
 MONGO_DB = os.environ.get("MONGO_DB", "usa2024")
 TRUMP_COLLECTION = os.environ.get("TRUMP_COLLECTION", "trump")
 KAMALA_COLLECTION = os.environ.get("KAMALA_COLLECTION", "kamala")

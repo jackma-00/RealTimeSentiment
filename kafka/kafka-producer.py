@@ -1,16 +1,26 @@
 import time
 from kafka import KafkaProducer
+from confluent_kafka.admin import AdminClient  
 import json
 import csv
 import concurrent.futures
 
+def wait_for_topics(topic_names, servers="kafka1:19092,kafka2:19093,kafka3:19094"):
+    admin_client = AdminClient({"bootstrap.servers": servers})
 
-def produce_tweets(topic_name, csv_file, servers="localhost:9092,localhost:9093,localhost:9094"):
+    while True:
+        topics = admin_client.list_topics(timeout=10).topics
+        if all(topic in topics for topic in topic_names):
+            print("All topics exist.")
+            break
+        print("Waiting for topics to be created...")
+        time.sleep(1)
+
+def produce_tweets(topic_name, csv_file, servers="kafka1:19092,kafka2:19093,kafka3:19094"):
     producer = KafkaProducer(bootstrap_servers=servers,
                              value_serializer=lambda v: json.dumps(v).encode('utf-8'))
     with open(csv_file, 'r') as file:
-        reader = csv.DictReader(
-            file, fieldnames=['username', 'tweet'], delimiter='\t')
+        reader = csv.DictReader(file, fieldnames=['username', 'tweet'], delimiter='\t')
 
         for row in reader:
             if row['username'] and row['tweet']:
@@ -27,11 +37,11 @@ def produce_tweets(topic_name, csv_file, servers="localhost:9092,localhost:9093,
     producer.flush()
     producer.close()
 
+if __name__ == "__main__":
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        wait_for_topics(['trump_tweets', 'kamala_tweets'])
+        
+        future_trump = executor.submit(produce_tweets, 'trump_tweets', '/app/twitter-scraper/tweets.csv')
+        future_kamala = executor.submit(produce_tweets, 'kamala_tweets', '/app/twitter-scraper/khamal_tweets.tsv')
 
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    # Crear las tareas concurrentes
-    future_trump = executor.submit(produce_tweets, 'trump_tweets', '../twitter-scraper/tweets.csv', "localhost:9092,localhost:9093,localhost:9094")
-    future_kamala = executor.submit(produce_tweets, 'kamala_tweets', '../twitter-scraper/khamal_tweets.tsv', "localhost:9092,localhost:9093,localhost:9094")
-
-    # Esperar a que terminen las tareas (opcional)
-    concurrent.futures.wait([future_trump, future_kamala])
+        concurrent.futures.wait([future_trump, future_kamala])

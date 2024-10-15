@@ -5,3 +5,5 @@ torch==2.4.1
 pyspark
 pymongo
 black
+confluent_kafka
+pyspark

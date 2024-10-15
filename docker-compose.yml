@@ -78,7 +78,6 @@ services:
     volumes:
       - mongo-data:/data/db
       - ./mongo/init-mongo-db-with-collections.js:/docker-entrypoint-initdb.d/init-mongo-db-with-collections.js:ro
-  
   dashboard:
     build: ./dashboard
     container_name: dashboard
@@ -88,8 +87,7 @@ services:
       - mongo
     environment:
       - MONGO_URI=mongodb://mongodb:27017
-  
-consumer:
+  consumer:
     build: ./consumer
     container_name: consumer
     depends_on:
@@ -97,14 +95,20 @@ consumer:
       - kafka2
       - kafka3
       - mongo
-    env_file:
-      - .env
     environment:
-      - SERVERS=${KAFKA_BROKER_URL}
-      - MONGO_URI=${MONGO_URI}
-      - MONGO_DB=${MONGO_DB_NAME}
-      - TRUMP_COLLECTION=${TRUMP_COLLECTION}
-      - KAMALA_COLLECTION=${KAMALA_COLLECTION}
+      - KAFKA_BOOTSTRAP_SERVER=kafka1:19092,kafka2:19093,kafka3:19094
+      - MONGO_URI=mongodb://mongodb:27017
+  producer:
+    build: ./kafka
+    container_name: producer
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka1:19092,kafka2:19093,kafka3:19094
+    volumes:
+      - ./twitter-scraper:/app/twitter-scraper
 
 volumes:
   mongo-data:
