@@ -2,4 +2,4 @@
 
 sleep 10
 
-python3 /code/kafka-producer.py
+python3 kafka-producer.py

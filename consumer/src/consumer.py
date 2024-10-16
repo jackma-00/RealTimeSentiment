@@ -39,7 +39,7 @@ K_OPPOSE_COUNT = 0
 def perform_inference(tweet: str):
     model = analyzer_bc.value
     model_output = model.analyze_sentiment(tweet)
-    return tuple(model_output[1], 1)
+    return (model_output[1], 1)
 
 
 def classify_trump(batch_df: DataFrame, batch_id: int):
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     spark = (
         SparkSession.builder.appName("KafkaSparkStreamingJSON")
         .config(
-            "spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2,"
+            "spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2"
         )
         .getOrCreate()
     )
