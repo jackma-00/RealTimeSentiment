@@ -41,7 +41,7 @@ if __name__ == "__main__":
     with concurrent.futures.ThreadPoolExecutor() as executor:
         wait_for_topics(['trump_tweets', 'kamala_tweets'])
         
-        future_trump = executor.submit(produce_tweets, 'trump_tweets', '/app/twitter-scraper/tweets.csv')
-        future_kamala = executor.submit(produce_tweets, 'kamala_tweets', '/app/twitter-scraper/khamal_tweets.tsv')
+        future_trump = executor.submit(produce_tweets, 'trump_tweets', './twitter-scraper/tweets.csv')
+        future_kamala = executor.submit(produce_tweets, 'kamala_tweets', './twitter-scraper/kamala_tweets.tsv')
 
         concurrent.futures.wait([future_trump, future_kamala])
