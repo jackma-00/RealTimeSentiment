@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark import SparkConf, SparkContext
+from pyspark import SparkConf
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StringType
@@ -39,16 +39,23 @@ K_OPPOSE_COUNT = 0
 
 
 # Define the function to classify the tweets
-def perform_inference(tweet: str):
+def perform_inference(row: DataFrame):
+    """
+    Perform sentiment analysis on a given row of data.
+
+    Args:
+        row (DataFrame): A DataFrame containing a 'tweet' column with the text to analyze.
+
+    Returns:
+        tuple: A tuple containing the sentiment score and a constant value of 1.
+    """
     model = analyzer_bc.value
-    model_output = model.analyze_sentiment(tweet)
+    model_output = model.analyze_sentiment(row['tweet'])
     return (model_output[1], 1)
 
 
 def classify_trump(batch_df: DataFrame, batch_id: int):
     # use map in the current stream batch
-    print("Classifying tweets")
-    print(batch_df.show(5))
     classified_tweets = batch_df.rdd.map(
         # the map function evaluates the tweets and generates a key-value pair
         # where the key is the sentiment and the value is 1 to count the number of tweets
@@ -75,8 +82,6 @@ def classify_trump(batch_df: DataFrame, batch_id: int):
 
 def classify_kamala(batch_df: DataFrame, batch_id: int):
     # use map in the current stream batch
-    print("Classifying tweets")
-    print(batch_df.show(5))
     classified_tweets = batch_df.rdd.map(
         # the map function evaluates the tweets and generates a key-value pair
         # where the key is the sentiment and the value is 1 to count the number of tweets
@@ -114,7 +119,7 @@ def read_stream_from_kafka(topic, server):
 def process_stream(df, schema, callback):
     return (
         df.select(from_json(col("value"), schema).alias("data"))
-        .select("data.username", "data.tweet")
+        .select("data.tweet")
         .writeStream.foreachBatch(callback)
         .start()
     )

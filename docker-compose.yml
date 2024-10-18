@@ -99,12 +99,12 @@ services:
       - kafka3
       - mongo
     environment:
-      - SPARK_DRIVER_MEMORY=4g
-      - SPARK_EXECUTOR_MEMORY=4g
+      - SPARK_DRIVER_MEMORY=8g
+      - SPARK_EXECUTOR_MEMORY=8g
       - KAFKA_BOOTSTRAP_SERVER=kafka1:19092,kafka2:19093,kafka3:19094
       - MONGO_URI=mongodb://mongodb:27017
-    mem_limit: 6g
-    memswap_limit: 8g
+    mem_limit: 8g
+    memswap_limit: 16g
   
   producer:
     build: ./kafka
