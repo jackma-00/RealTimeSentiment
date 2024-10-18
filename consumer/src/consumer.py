@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark import SparkConf, SparkContext
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StringType
@@ -6,9 +7,8 @@ import logging
 from pymongo import MongoClient
 from datetime import datetime
 import os
-import random
 
-# from sentiment_analysis.politics import SentimentAnalyzer
+from sentiment_analysis.politics import SentimentAnalyzer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,11 +19,8 @@ SERVERS = os.environ.get(
     "KAFKA_BOOTSTRAP_SERVER", "kafka1:19092,kafka2:19093,kafka3:19094"
 )
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://mongodb:27017/")
-# MONGO_DB = os.environ.get("MONGO_DB", "usa2024")
 MONGO_DB = "usa2024"
-# TRUMP_COLLECTION = os.environ.get("TRUMP_COLLECTION", "trump")
 TRUMP_COLLECTION = "trump"
-# KAMALA_COLLECTION = os.environ.get("KAMALA_COLLECTION", "kamala")
 KAMALA_COLLECTION = "kamala"
 
 # Define the topics
@@ -42,16 +39,10 @@ K_OPPOSE_COUNT = 0
 
 
 # Define the function to classify the tweets
-# def perform_inference(tweet: str):
-# model = analyzer_bc.value
-# model_output = model.analyze_sentiment(tweet)
-# return (model_output[1], 1)
-
-
-# Randomly classify the tweets
-def coin(tweet: str):
-    sentiment = random.choice([SUPPORT_KEY, OPPOSE_KEY])
-    return (sentiment, 1)
+def perform_inference(tweet: str):
+    model = analyzer_bc.value
+    model_output = model.analyze_sentiment(tweet)
+    return (model_output[1], 1)
 
 
 def classify_trump(batch_df: DataFrame, batch_id: int):
@@ -61,7 +52,7 @@ def classify_trump(batch_df: DataFrame, batch_id: int):
     classified_tweets = batch_df.rdd.map(
         # the map function evaluates the tweets and generates a key-value pair
         # where the key is the sentiment and the value is 1 to count the number of tweets
-        coin
+        perform_inference
     )
     counts = classified_tweets.reduceByKey(lambda x, y: x + y)
     global T_SUPPORT_COUNT, T_OPPOSE_COUNT
@@ -89,7 +80,7 @@ def classify_kamala(batch_df: DataFrame, batch_id: int):
     classified_tweets = batch_df.rdd.map(
         # the map function evaluates the tweets and generates a key-value pair
         # where the key is the sentiment and the value is 1 to count the number of tweets
-        coin
+        perform_inference
     )
     counts = classified_tweets.reduceByKey(lambda x, y: x + y)
     global K_SUPPORT_COUNT, K_OPPOSE_COUNT
@@ -153,21 +144,27 @@ if __name__ == "__main__":
     trump_db = db[TRUMP_COLLECTION]  # use or create a collection named trump
     harris_db = db[KAMALA_COLLECTION]  # use or create a collection named harris
 
-    # Initialize the Spark session
-    spark = (
-        SparkSession.builder.appName("KafkaSparkStreamingJSON")
-        .config(
-            "spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2"
-        )
-        .getOrCreate()
+    # Configure Spark
+    conf = (
+        SparkConf()
+        .setAppName("KafkaSparkStreamingJSON")
+        .set("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2")
+        .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        .set("spark.driver.memory", "4g")
+        .set("spark.executor.memory", "4g")
     )
-    # sc = spark.sparkContext
+
+    # Initialize SparkSession with SparkConf
+    spark = SparkSession.builder.config(conf=conf).getOrCreate()
+
+    # Get the SparkContext from SparkSession (if needed)
+    sc = spark.sparkContext
 
     # Initialize the SentimentAnalyzer
-    # analyzer = SentimentAnalyzer()
+    analyzer = SentimentAnalyzer()
 
     # Broadcast the SentimentAnalyzer object to all the worker nodes
-    # analyzer_bc = sc.broadcast(analyzer)
+    analyzer_bc = sc.broadcast(analyzer)
 
     # Handle the stream and classify the tweets
     handle_stream(SERVERS)

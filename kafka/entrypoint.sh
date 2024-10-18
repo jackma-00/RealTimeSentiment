@@ -1,4 +1,4 @@
 #!/bin/bash
 
-sleep 10
+sleep 60
 python3 kafka-producer.py

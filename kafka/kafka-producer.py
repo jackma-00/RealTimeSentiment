@@ -32,7 +32,7 @@ def produce_tweets(topic_name, csv_file, servers="kafka1:19092,kafka2:19093,kafk
                 print(f"Sent: {message}")
             else:
                 print(f"Skipping malformed row: {row}")
-            time.sleep(0.25)
+            time.sleep(1)
 
     producer.flush()
     producer.close()
