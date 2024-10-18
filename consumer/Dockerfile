@@ -10,6 +10,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY . .
+ENV PYTHONPATH="/code/src:${PYTHONPATH}"
 
 RUN chmod +x entrypoint.sh
 

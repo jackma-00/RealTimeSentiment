@@ -1,3 +1,4 @@
+from pyspark import SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import from_json, col
@@ -6,7 +7,6 @@ import logging
 from pymongo import MongoClient
 from datetime import datetime
 import os
-import random
 
 from sentiment_analysis.coin import SentimentAnalyzer
 
@@ -144,14 +144,18 @@ if __name__ == "__main__":
     trump_db = db[TRUMP_COLLECTION]  # use or create a collection named trump
     harris_db = db[KAMALA_COLLECTION]  # use or create a collection named harris
 
-    # Initialize the Spark session
-    spark = (
-        SparkSession.builder.appName("KafkaSparkStreamingJSON")
-        .config(
-            "spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2"
-        )
-        .getOrCreate()
+    # Configure Spark
+    conf = (
+        SparkConf()
+        .setAppName("KafkaSparkStreamingJSON")
+        .set("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2")
+        .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     )
+
+    # Initialize SparkSession with SparkConf
+    spark = SparkSession.builder.config(conf=conf).getOrCreate()
+
+    # Get the SparkContext from SparkSession (if needed)
     sc = spark.sparkContext
 
     # Initialize the SentimentAnalyzer
