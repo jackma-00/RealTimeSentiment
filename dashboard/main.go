@@ -18,8 +18,8 @@ var harrisDb *mongo.Collection
 
 type candidateData struct {
 	Timestamp time.Time `bson:"timestamp"`
-	Support   int       `bson:"support"`
-	Oppose    int       `bson:"oppose"`
+	Support   int       `bson:"Positive"`
+	Oppose    int       `bson:"Negative"`
 }
 
 func getData() string {
@@ -43,14 +43,14 @@ func getData() string {
 		log.Println("No data for Trump and Harris")
 		return "{}"
 	}
-	trumpSupport := int((float32(currentTrump.Support + currentHarris.Oppose)/float32(totalCount))*100)
+	trumpSupport := int((float32(currentTrump.Support+currentHarris.Oppose) / float32(totalCount)) * 100)
 	log.Println("Current trump: ", currentTrump)
-	log.Println("Current trump support: ", currentTrump.Support)
-	log.Println("Current harris oppose: ", currentHarris.Oppose)
-	log.Println("Harris support: ", currentHarris.Oppose)
+	log.Println("Current trump Positive: ", currentTrump.Support)
+	log.Println("Current harris Negative: ", currentHarris.Oppose)
+	log.Println("Harris Positive: ", currentHarris.Oppose)
 	harrisSupport := 100 - trumpSupport
-	log.Println("Trump support: ", trumpSupport)
-	log.Println("Harris support: ", harrisSupport)
+	log.Println("Trump Positive: ", trumpSupport)
+	log.Println("Harris Positive: ", harrisSupport)
 	log.Println("Total count: ", totalCount)
 
 	type result struct {

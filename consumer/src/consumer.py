@@ -1,3 +1,4 @@
+from pyspark import SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import from_json, col
@@ -7,18 +8,20 @@ from pymongo import MongoClient
 from datetime import datetime
 import os
 
-from sentiment_analysis.politics import SentimentAnalyzer
+from sentiment_analysis.coin import SentimentAnalyzer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 # Define the environment variables
-SERVERS = os.environ.get("SERVERS", "kafka1:19092,kafka2:19093,kafka3:19094")
+SERVERS = os.environ.get(
+    "KAFKA_BOOTSTRAP_SERVER", "kafka1:19092,kafka2:19093,kafka3:19094"
+)
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://mongodb:27017/")
-MONGO_DB = os.environ.get("MONGO_DB", "usa2024")
-TRUMP_COLLECTION = os.environ.get("TRUMP_COLLECTION", "trump")
-KAMALA_COLLECTION = os.environ.get("KAMALA_COLLECTION", "kamala")
+MONGO_DB = "usa2024"
+TRUMP_COLLECTION = "trump"
+KAMALA_COLLECTION = "kamala"
 
 # Define the topics
 TRUMP_TOPIC = "trump_tweets"
@@ -39,7 +42,7 @@ K_OPPOSE_COUNT = 0
 def perform_inference(tweet: str):
     model = analyzer_bc.value
     model_output = model.analyze_sentiment(tweet)
-    return tuple(model_output[1], 1)
+    return (model_output, 1)
 
 
 def classify_trump(batch_df: DataFrame, batch_id: int):
@@ -78,7 +81,7 @@ def classify_kamala(batch_df: DataFrame, batch_id: int):
         # the map function evaluates the tweets and generates a key-value pair
         # where the key is the sentiment and the value is 1 to count the number of tweets
         perform_inference
-    )  # add model evaluation here
+    )
     counts = classified_tweets.reduceByKey(lambda x, y: x + y)
     global K_SUPPORT_COUNT, K_OPPOSE_COUNT
 
@@ -98,7 +101,7 @@ def classify_kamala(batch_df: DataFrame, batch_id: int):
     )
 
 
-def read_stream_from_kafka(topic, server=SERVERS):
+def read_stream_from_kafka(topic, server):
     return (
         spark.readStream.format("kafka")
         .option("kafka.bootstrap.servers", server)
@@ -117,7 +120,7 @@ def process_stream(df, schema, callback):
     )
 
 
-def handle_stream(server=SERVERS):
+def handle_stream(server):
     # Define the schema
     json_schema = StructType().add("username", StringType()).add("tweet", StringType())
 
@@ -141,14 +144,18 @@ if __name__ == "__main__":
     trump_db = db[TRUMP_COLLECTION]  # use or create a collection named trump
     harris_db = db[KAMALA_COLLECTION]  # use or create a collection named harris
 
-    # Initialize the Spark session
-    spark = (
-        SparkSession.builder.appName("KafkaSparkStreamingJSON")
-        .config(
-            "spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2,"
-        )
-        .getOrCreate()
+    # Configure Spark
+    conf = (
+        SparkConf()
+        .setAppName("KafkaSparkStreamingJSON")
+        .set("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2")
+        .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     )
+
+    # Initialize SparkSession with SparkConf
+    spark = SparkSession.builder.config(conf=conf).getOrCreate()
+
+    # Get the SparkContext from SparkSession (if needed)
     sc = spark.sparkContext
 
     # Initialize the SentimentAnalyzer
